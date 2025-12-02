@@ -1,0 +1,35 @@
+{
+    "name": "yakupeyisan/codeigniter4-mailer",
+    "description": "CodeIgniter 4 için eksiksiz ve güçlü mailer paketi - Tüm mail formatları ve özellikleri ile",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "codeigniter4",
+        "mailer",
+        "email",
+        "smtp",
+        "mail",
+        "sendmail",
+        "template",
+        "queue",
+        "attachment"
+    ],
+    "authors": [
+        {
+            "name": "Yakup EYİSAN",
+            "email": "yakupeyisan@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "codeigniter4/framework": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Yakupeyisan\\CodeIgniter4\\Mailer\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
+
