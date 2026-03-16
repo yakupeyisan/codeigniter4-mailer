@@ -169,12 +169,19 @@ class SmtpDriver extends BaseDriver
         }
         
         // EHLO
-        $this->sendCommand("EHLO " . gethostname(), 250);
-        
-        // STARTTLS
-        if ($this->encryption === 'tls') {
+        $ehloResponse = $this->sendCommand("EHLO " . gethostname(), 250);
+
+        // STARTTLS desteğini otomatik algıla:
+        // - Şifreleme "tls" ise her zaman dene
+        // - Veya port 587 kullanılıyorsa ve sunucu STARTTLS desteği bildiriyorsa (Gmail vb.)
+        $supportsStartTls = stripos($ehloResponse, 'STARTTLS') !== false;
+        $shouldStartTls  = $this->encryption === 'tls'
+            || (($this->encryption === '' || $this->encryption === null) && $this->port === 587 && $supportsStartTls);
+
+        if ($shouldStartTls) {
             $this->sendCommand("STARTTLS", 220);
             stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+            // TLS'e geçtikten sonra tekrar EHLO
             $this->sendCommand("EHLO " . gethostname(), 250);
         }
     }
@@ -201,7 +208,7 @@ class SmtpDriver extends BaseDriver
     /**
      * Komut gönder
      */
-    protected function sendCommand(string $command, int $expectedCode): void
+    protected function sendCommand(string $command, int $expectedCode): string
     {
         fwrite($this->socket, $command . "\r\n");
         $response = $this->getResponse();
@@ -210,6 +217,8 @@ class SmtpDriver extends BaseDriver
         if ($code !== $expectedCode) {
             throw new EmailException("SMTP komutu başarısız: {$command} - {$response}");
         }
+
+        return $response;
     }
 
     /**
